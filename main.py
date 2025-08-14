@@ -1,4 +1,4 @@
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import sync_playwright, ElementHandle
 from configs import *
 from datetime import datetime
 from os import path
@@ -15,20 +15,19 @@ https://youtu.be/BdjZFPTONYc
 """
 # ==============================================
 
-class FacebookGroupSpam:
-    def __init__(self) -> None:
-        p = sync_playwright().start()
-        self.browser = p.chromium.launch(headless=False)
-        self.context = self.browser.new_context(no_viewport=True)
-        self.page = self.context.new_page()
-        # if you first time login
-            # self.generate_cookie()
-        # if you have session
 
-        self.load_cookie()
-        self.post_to_groups()
-        self.page.close()
-        self.context.close()
+class FacebookGroupPostSpam:
+    URL: str = 'https://facebook.com'
+
+    def __init__(self) -> None:
+        with sync_playwright() as p:
+            self.browser = p.chromium.launch(headless=False, channel='chrome', args=['--start-maximized'])
+            self.context = self.browser.new_context(no_viewport=True)
+            self.page = self.context.new_page()
+            # if you first time login
+            # self.generate_cookie()
+            self.load_cookie()
+            self.post_to_groups()
     
     def post_to_groups(self):
         for group in get_sources_list():
@@ -42,7 +41,6 @@ class FacebookGroupSpam:
                 self.page.wait_for_timeout(3_000)
                 self.page.wait_for_selector("//div[@role='dialog']//div[@aria-label='Post']").click()
                 # wait for post done
-                # its ugly code, hard to debug but it'll work
                 self.page.wait_for_timeout(5_000)
                 self.page.wait_for_load_state('networkidle')
                 print(f"\t[+] Posted")
@@ -52,7 +50,7 @@ class FacebookGroupSpam:
 
 
     def generate_cookie(self) -> None:
-        self.page.goto(SOCIAL_MAPS['facebook']['login'])
+        self.page.goto(SOCIAL_MAPS['facebook']['login_url'])
         input('[*] Login please, after you login please press enter')
         with open(f"{PROJECT_ROOT}/sessions/{SOCIAL_MAPS['facebook']['filename']}", 'w') as f:
             json.dump(self.page.context.cookies(), f)
@@ -65,10 +63,10 @@ class FacebookGroupSpam:
             print('[-] Generate using `generate_cookie()`')
             exit()
 
-        self.page.goto(SOCIAL_MAPS['facebook']['login'])
+        self.page.goto(SOCIAL_MAPS['facebook']['login_url'])
         with open(file_path, 'r') as f:
             cookies = json.loads(f.read())
             self.context.add_cookies(cookies)
 
 if __name__ == '__main__':
-    FacebookGroupSpam()
+    FacebookGroupPostSpam()
