@@ -6,6 +6,10 @@ A Python & Playwright-based automation tool for posting content to multiple Face
 
 ---
 
+## 🎥 Proof of Concept (PoC)
+
+<video src="https://github.com/user-attachments/assets/dcb87b77-d6b6-46aa-925d-bdabfd5c1005" width="600" controls autoplay loop></video>
+
 ## 🚀 Features
 
 - Automates Facebook login and group posting.
